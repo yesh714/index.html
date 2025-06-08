@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reaction Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #1e1e2f;
+      color: #fff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: 100vh;
+    }
+    h1 {
+      margin-bottom: 10px;
+    }
+    #gameBox {
+      width: 100px;
+      height: 100px;
+      background: #4CAF50;
+      position: absolute;
+      display: none;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    #startBtn, #restartBtn {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #startBtn {
+      background-color: #2196F3;
+      color: white;
+    }
+    #restartBtn {
+      background-color: #f44336;
+      color: white;
+      display: none;
+    }
+    .stats {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    @media (max-width: 600px) {
+      #gameBox {
+        width: 80px;
+        height: 80px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Reaction Time Game</h1>
+  <button id="startBtn">Start</button>
+  <button id="restartBtn">Restart</button>
+  <div class="stats">
+    <p>Score: <span id="score">0</span></p>
+    <p>Best Time: <span id="bestTime">--</span> ms</p>
+    <p>Last Time: <span id="lastTime">--</span> ms</p>
+  </div>
+  <div id="gameBox"></div>  <script>
+    const gameBox = document.getElementById('gameBox');
+    const startBtn = document.getElementById('startBtn');
+    const restartBtn = document.getElementById('restartBtn');
+    const scoreDisplay = document.getElementById('score');
+    const bestTimeDisplay = document.getElementById('bestTime');
+    const lastTimeDisplay = document.getElementById('lastTime');
+
+    let score = 0;
+    let startTime;
+    let timeoutId;
+
+    const bestTime = localStorage.getItem('bestTime');
+    if (bestTime) bestTimeDisplay.textContent = bestTime;
+
+    function getRandomPosition() {
+      const x = Math.random() * (window.innerWidth - 120);
+      const y = Math.random() * (window.innerHeight - 120);
+      return { x, y };
+    }
+
+    function showBox() {
+      const pos = getRandomPosition();
+      gameBox.style.left = pos.x + 'px';
+      gameBox.style.top = pos.y + 'px';
+      gameBox.style.display = 'block';
+      startTime = Date.now();
+    }
+
+    gameBox.onclick = () => {
+      const reactionTime = Date.now() - startTime;
+      lastTimeDisplay.textContent = reactionTime + ' ms';
+      gameBox.style.display = 'none';
+
+      score++;
+      scoreDisplay.textContent = score;
+
+      if (!bestTime || reactionTime < parseInt(bestTime)) {
+        localStorage.setItem('bestTime', reactionTime);
+        bestTimeDisplay.textContent = reactionTime;
+      }
+
+      timeoutId = setTimeout(showBox, Math.random() * 2000 + 1000);
+    };
+
+    startBtn.onclick = () => {
+      score = 0;
+      scoreDisplay.textContent = score;
+      startBtn.style.display = 'none';
+      restartBtn.style.display = 'inline-block';
+      timeoutId = setTimeout(showBox, Math.random() * 2000 + 1000);
+    };
+
+    restartBtn.onclick = () => {
+      clearTimeout(timeoutId);
+      gameBox.style.display = 'none';
+      score = 0;
+      scoreDisplay.textContent = score;
+      lastTimeDisplay.textContent = '--';
+      timeoutId = setTimeout(showBox, Math.random() * 2000 + 1000);
+    };
+  </script></body>
+</html>
